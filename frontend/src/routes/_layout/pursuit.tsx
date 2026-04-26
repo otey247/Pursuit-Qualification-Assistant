@@ -16,7 +16,7 @@ import {
   type PursuitAssessment,
   type PursuitRecommendation,
   PursuitService,
-} from "@/client/pursuit"
+} from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -72,6 +72,11 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
+
+const defaultFormValues: Partial<FormData> = {
+  opportunity_name: "",
+  notes: "",
+}
 
 const DIMENSIONS = [
   {
@@ -181,10 +186,17 @@ function ScoreBar({ score, max = 5 }: { score: number; max?: number }) {
   )
 }
 
-function RecommendationBadge({ recommendation }: { recommendation: string }) {
+function RecommendationBadge({
+  recommendation,
+}: {
+  recommendation: PursuitRecommendation["recommendation"]
+}) {
   if (recommendation === "Pursue") {
     return (
-      <Badge className="text-base px-4 py-1 bg-green-600 hover:bg-green-600 text-white">
+      <Badge
+        className="bg-green-600 px-4 py-1 text-base text-white hover:bg-green-600"
+        data-testid="recommendation-badge"
+      >
         <CheckCircle2 className="mr-1.5 size-4" />
         Pursue
       </Badge>
@@ -192,16 +204,31 @@ function RecommendationBadge({ recommendation }: { recommendation: string }) {
   }
   if (recommendation === "Shape") {
     return (
-      <Badge className="text-base px-4 py-1 bg-yellow-500 hover:bg-yellow-500 text-white">
+      <Badge
+        className="bg-yellow-500 px-4 py-1 text-base text-white hover:bg-yellow-500"
+        data-testid="recommendation-badge"
+      >
         <Target className="mr-1.5 size-4" />
         Shape
       </Badge>
     )
   }
+  if (recommendation === "Walk Away") {
+    return (
+      <Badge
+        className="bg-red-600 px-4 py-1 text-base text-white hover:bg-red-600"
+        data-testid="recommendation-badge"
+      >
+        <AlertTriangle className="mr-1.5 size-4" />
+        Walk Away
+      </Badge>
+    )
+  }
+
   return (
-    <Badge className="text-base px-4 py-1 bg-red-600 hover:bg-red-600 text-white">
+    <Badge data-testid="recommendation-badge" variant="outline">
       <AlertTriangle className="mr-1.5 size-4" />
-      Walk Away
+      Unexpected recommendation
     </Badge>
   )
 }
@@ -274,7 +301,12 @@ function ResultPanel({
         </CardContent>
       </Card>
 
-      <Button variant="outline" onClick={onReset} className="self-start">
+      <Button
+        className="self-start"
+        data-testid="reset-pursuit-button"
+        onClick={onReset}
+        variant="outline"
+      >
         <RotateCcw className="mr-2 size-4" />
         Assess Another Opportunity
       </Button>
@@ -290,10 +322,7 @@ function PursuitPage() {
     resolver: zodResolver(formSchema),
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: {
-      opportunity_name: "",
-      notes: "",
-    },
+    defaultValues: defaultFormValues,
   })
 
   const mutation = useMutation({
@@ -330,7 +359,13 @@ function PursuitPage() {
             Assessment result for your opportunity
           </p>
         </div>
-        <ResultPanel result={result} onReset={() => setResult(null)} />
+        <ResultPanel
+          onReset={() => {
+            form.reset(defaultFormValues)
+            setResult(null)
+          }}
+          result={result}
+        />
       </div>
     )
   }
@@ -367,6 +402,7 @@ function PursuitPage() {
                     </FormLabel>
                     <FormControl>
                       <Input
+                        data-testid="opportunity-name-input"
                         placeholder="e.g. ACME Corp – Digital Transformation Program"
                         {...field}
                       />
@@ -423,7 +459,10 @@ function PursuitPage() {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger
+                              className="w-full"
+                              data-testid={`${dim.name}-select`}
+                            >
                               <SelectValue placeholder="Select a score…" />
                             </SelectTrigger>
                           </FormControl>

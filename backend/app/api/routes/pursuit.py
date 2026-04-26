@@ -1,5 +1,8 @@
+from typing import Literal, TypedDict
+
 from fastapi import APIRouter
 
+from app.api.deps import CurrentUser
 from app.models import (
     PursuitAssessment,
     PursuitDimensionScore,
@@ -10,7 +13,25 @@ router = APIRouter(prefix="/pursuit", tags=["pursuit"])
 
 _NUM_DIMENSIONS = 7
 
-_DIMENSION_META = [
+PursuitDimensionField = Literal[
+    "relationship_strength",
+    "fit",
+    "timing",
+    "budget_realism",
+    "competitive_position",
+    "delivery_risk",
+    "differentiators",
+]
+PursuitRecommendationLabel = Literal["Pursue", "Shape", "Walk Away"]
+
+
+class DimensionMeta(TypedDict):
+    field: PursuitDimensionField
+    label: str
+    rationale_map: dict[int, str]
+
+
+_DIMENSION_META: list[DimensionMeta] = [
     {
         "field": "relationship_strength",
         "label": "Relationship Strength",
@@ -96,8 +117,11 @@ assert len(_DIMENSION_META) == _NUM_DIMENSIONS, (
 )
 
 
-def _build_recommendation(score: float, name: str) -> tuple[str, str, list[str]]:
+def _build_recommendation(
+    score: float, name: str
+) -> tuple[PursuitRecommendationLabel, str, list[str]]:
     """Return (recommendation_label, summary, actions) based on overall score."""
+    recommendation: PursuitRecommendationLabel
     if score >= 3.5:
         recommendation = "Pursue"
         summary = (
@@ -144,11 +168,13 @@ def _build_recommendation(score: float, name: str) -> tuple[str, str, list[str]]
 
 
 @router.post("/assess", response_model=PursuitRecommendation)
-def assess_pursuit(assessment: PursuitAssessment) -> PursuitRecommendation:
+def assess_pursuit(
+    assessment: PursuitAssessment, _current_user: CurrentUser
+) -> PursuitRecommendation:
     """
     Assess an opportunity and return a pursue / shape / walk-away recommendation.
     """
-    field_values: dict[str, int] = {
+    field_values: dict[PursuitDimensionField, int] = {
         "relationship_strength": assessment.relationship_strength,
         "fit": assessment.fit,
         "timing": assessment.timing,

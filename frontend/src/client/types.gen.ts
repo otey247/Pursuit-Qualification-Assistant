@@ -52,6 +52,57 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
+export type PursuitAssessment = {
+    opportunity_name: string;
+    /**
+     * How strong is the relationship with the client? (1=None, 5=Strong advocate)
+     */
+    relationship_strength: number;
+    /**
+     * How well does this opportunity fit our capabilities? (1=Poor fit, 5=Perfect fit)
+     */
+    fit: number;
+    /**
+     * Is the timing right for us to pursue this? (1=Very poor, 5=Ideal timing)
+     */
+    timing: number;
+    /**
+     * Is the budget realistic for the scope? (1=Severely underfunded, 5=Well-funded)
+     */
+    budget_realism: number;
+    /**
+     * How strong is our competitive position? (1=Major disadvantage, 5=Clear frontrunner)
+     */
+    competitive_position: number;
+    /**
+     * How manageable is the delivery risk? (1=Very high risk, 5=Low risk)
+     */
+    delivery_risk: number;
+    /**
+     * How strong are our differentiators for this opportunity? (1=None, 5=Unique and compelling)
+     */
+    differentiators: number;
+    notes?: (string | null);
+};
+
+export type PursuitDimensionScore = {
+    label: string;
+    score: number;
+    max_score?: number;
+    rationale: string;
+};
+
+export type PursuitRecommendation = {
+    opportunity_name: string;
+    recommendation: 'Pursue' | 'Shape' | 'Walk Away';
+    overall_score: number;
+    summary: string;
+    dimensions: Array<PursuitDimensionScore>;
+    actions: Array<(string)>;
+};
+
+export type recommendation = 'Pursue' | 'Shape' | 'Walk Away';
+
 export type Token = {
     access_token: string;
     token_type?: string;
@@ -176,6 +227,12 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type PursuitAssessPursuitData = {
+    requestBody: PursuitAssessment;
+};
+
+export type PursuitAssessPursuitResponse = (PursuitRecommendation);
 
 export type UsersReadUsersData = {
     limit?: number;
