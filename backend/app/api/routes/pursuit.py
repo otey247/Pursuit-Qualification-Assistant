@@ -8,6 +8,8 @@ from app.models import (
 
 router = APIRouter(prefix="/pursuit", tags=["pursuit"])
 
+_NUM_DIMENSIONS = 7
+
 _DIMENSION_META = [
     {
         "field": "relationship_strength",
@@ -88,6 +90,11 @@ _DIMENSION_META = [
     },
 ]
 
+assert len(_DIMENSION_META) == _NUM_DIMENSIONS, (
+    f"_DIMENSION_META has {len(_DIMENSION_META)} entries but _NUM_DIMENSIONS is {_NUM_DIMENSIONS}; "
+    "keep them in sync."
+)
+
 
 def _build_recommendation(score: float, name: str) -> tuple[str, str, list[str]]:
     """Return (recommendation_label, summary, actions) based on overall score."""
@@ -167,7 +174,7 @@ def assess_pursuit(assessment: PursuitAssessment) -> PursuitRecommendation:
             )
         )
 
-    overall_score = total / len(_DIMENSION_META)
+    overall_score = total / _NUM_DIMENSIONS
     recommendation, summary, actions = _build_recommendation(
         overall_score, assessment.opportunity_name
     )
