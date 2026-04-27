@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from typing import Literal
 
 from pydantic import EmailStr
 from sqlalchemy import DateTime
@@ -127,3 +128,81 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+# Pursuit Qualification Assistant models
+
+
+class PursuitAssessment(SQLModel):
+    opportunity_name: str = Field(min_length=1, max_length=255)
+    relationship_strength: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "How strong is the relationship with the client? "
+            "(1=None, 5=Strong advocate)"
+        ),
+    )
+    fit: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "How well does this opportunity fit our capabilities? "
+            "(1=Poor fit, 5=Perfect fit)"
+        ),
+    )
+    timing: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "Is the timing right for us to pursue this? (1=Very poor, 5=Ideal timing)"
+        ),
+    )
+    budget_realism: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "Is the budget realistic for the scope? "
+            "(1=Severely underfunded, 5=Well-funded)"
+        ),
+    )
+    competitive_position: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "How strong is our competitive position? "
+            "(1=Major disadvantage, 5=Clear frontrunner)"
+        ),
+    )
+    delivery_risk: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "How manageable is the delivery risk? (1=Very high risk, 5=Low risk)"
+        ),
+    )
+    differentiators: int = Field(
+        ge=1,
+        le=5,
+        description=(
+            "How strong are our differentiators for this opportunity? "
+            "(1=None, 5=Unique and compelling)"
+        ),
+    )
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+class PursuitDimensionScore(SQLModel):
+    label: str
+    score: int
+    max_score: int = 5
+    rationale: str
+
+
+class PursuitRecommendation(SQLModel):
+    opportunity_name: str
+    recommendation: Literal["Pursue", "Shape", "Walk Away"]
+    overall_score: float
+    summary: str
+    dimensions: list[PursuitDimensionScore]
+    actions: list[str]

@@ -251,6 +251,145 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
+export const PursuitAssessmentSchema = {
+    properties: {
+        opportunity_name: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Opportunity Name'
+        },
+        relationship_strength: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Relationship Strength',
+            description: 'How strong is the relationship with the client? (1=None, 5=Strong advocate)'
+        },
+        fit: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Fit',
+            description: 'How well does this opportunity fit our capabilities? (1=Poor fit, 5=Perfect fit)'
+        },
+        timing: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Timing',
+            description: 'Is the timing right for us to pursue this? (1=Very poor, 5=Ideal timing)'
+        },
+        budget_realism: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Budget Realism',
+            description: 'Is the budget realistic for the scope? (1=Severely underfunded, 5=Well-funded)'
+        },
+        competitive_position: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Competitive Position',
+            description: 'How strong is our competitive position? (1=Major disadvantage, 5=Clear frontrunner)'
+        },
+        delivery_risk: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Delivery Risk',
+            description: 'How manageable is the delivery risk? (1=Very high risk, 5=Low risk)'
+        },
+        differentiators: {
+            type: 'integer',
+            maximum: 5,
+            minimum: 1,
+            title: 'Differentiators',
+            description: 'How strong are our differentiators for this opportunity? (1=None, 5=Unique and compelling)'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    required: ['opportunity_name', 'relationship_strength', 'fit', 'timing', 'budget_realism', 'competitive_position', 'delivery_risk', 'differentiators'],
+    title: 'PursuitAssessment'
+} as const;
+
+export const PursuitDimensionScoreSchema = {
+    properties: {
+        label: {
+            type: 'string',
+            title: 'Label'
+        },
+        score: {
+            type: 'integer',
+            title: 'Score'
+        },
+        max_score: {
+            type: 'integer',
+            title: 'Max Score',
+            default: 5
+        },
+        rationale: {
+            type: 'string',
+            title: 'Rationale'
+        }
+    },
+    type: 'object',
+    required: ['label', 'score', 'rationale'],
+    title: 'PursuitDimensionScore'
+} as const;
+
+export const PursuitRecommendationSchema = {
+    properties: {
+        opportunity_name: {
+            type: 'string',
+            title: 'Opportunity Name'
+        },
+        recommendation: {
+            type: 'string',
+            enum: ['Pursue', 'Shape', 'Walk Away'],
+            title: 'Recommendation'
+        },
+        overall_score: {
+            type: 'number',
+            title: 'Overall Score'
+        },
+        summary: {
+            type: 'string',
+            title: 'Summary'
+        },
+        dimensions: {
+            items: {
+                '$ref': '#/components/schemas/PursuitDimensionScore'
+            },
+            type: 'array',
+            title: 'Dimensions'
+        },
+        actions: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Actions'
+        }
+    },
+    type: 'object',
+    required: ['opportunity_name', 'recommendation', 'overall_score', 'summary', 'dimensions', 'actions'],
+    title: 'PursuitRecommendation'
+} as const;
+
 export const TokenSchema = {
     properties: {
         access_token: {
